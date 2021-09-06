@@ -9,7 +9,10 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 @JsonDeserialize
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class User {
+public abstract class UserResponse {
+
+    @JsonProperty("id")
+    public abstract int getId();
 
     @JsonProperty("name")
     public abstract String getName();
@@ -24,11 +27,12 @@ public abstract class User {
     public abstract String getStatus();
 
     @JsonCreator
-    public static User create(
+    public static UserResponse create(
+            @JsonProperty("id") int id,
             @JsonProperty("name") String name,
             @JsonProperty("email") String email,
             @JsonProperty("gender") String gender,
             @JsonProperty("status") String status) {
-        return new AutoValue_User(name, email, gender, status);
+        return new AutoValue_UserResponse(id, name, email, gender, status);
     }
 }

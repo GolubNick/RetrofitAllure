@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 @AutoValue
 @JsonDeserialize
@@ -17,12 +16,12 @@ public abstract class DataUsers {
     public abstract Meta getMeta();
 
     @JsonProperty("data")
-    public abstract List<User> getData();
+    public abstract UserResponse getData();
 
     @JsonCreator
     public static DataUsers create(
             @JsonProperty("meta") Meta meta,
-            @JsonProperty("data") List<User> data
+            @JsonProperty("data") UserResponse data
     ) {
         return new AutoValue_DataUsers(meta, data);
     }
