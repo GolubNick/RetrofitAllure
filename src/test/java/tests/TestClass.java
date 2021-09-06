@@ -2,6 +2,7 @@ package tests;
 
 import models.DataUsers;
 import models.User;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import resources.CreateNewUsers;
@@ -28,51 +29,49 @@ public class TestClass extends TestBase{
     private final String GENDER = "male";
     private final String STATUS = "active";
 
+    private ThreadLocal<Response<DataUsers>> responseDataUser = new ThreadLocal<>();
+
     @Test
     public void getUserByCorrectId() throws IOException {
-        Response<DataUsers> responseData = createUser();
-        Call<DataUsers> request = getUserDetails.getUserById(responseData.body().getData().getId());
+        Call<DataUsers> request = getUserDetails.getUserById(responseDataUser.get().body().getData().getId());
         Response<DataUsers> response = request.execute();
         softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_OK);
         softAssertions.assertThat(JsonSchemaHelper.isMatchingSchema("/json-schema/user.json", response)).isTrue();
-        deleteExistingUser(responseData.body().getData().getId());
     }
 
     @Test
     public void createNewUser() throws IOException {
-        Response<DataUsers> responseData = createUser();
+        Response<DataUsers> responseData = responseDataUser.get();
         softAssertions.assertThat(responseData.code()).isEqualTo(HttpURLConnection.HTTP_CREATED);
         softAssertions.assertThat(JsonSchemaHelper.isMatchingSchema("/json-schema/user.json", responseData)).isTrue();
-        deleteExistingUser(responseData.body().getData().getId());
     }
 
     @Test
     public void updateUser() throws IOException {
-        Response<DataUsers> responseData = createUser();
-        User body = User.create(NAME, EMAIL, GENDER, STATUS);
-        Call<DataUsers> request = updateUserFactory.updateUser(responseData.body().getData().getId(), TOKEN, body);
+        User body = User.create(null, NAME, EMAIL, GENDER, STATUS);
+        Call<DataUsers> request = updateUserFactory.updateUser(responseDataUser.get().body().getData().getId(), TOKEN, body);
         Response<DataUsers> response = request.execute();
         softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_OK);
         softAssertions.assertThat(JsonSchemaHelper.isMatchingSchema("/json-schema/user.json", response)).isTrue();
-        deleteExistingUser(responseData.body().getData().getId());
     }
 
     @Test
     public void deleteUser() throws IOException {
-        Response<DataUsers> responseData = createUser();
-        Response<DataUsers> response = deleteExistingUser(responseData.body().getData().getId());
+        Response<DataUsers> response = deleteExistingUser();
         softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     }
 
-    private Response<DataUsers> createUser() throws IOException {
-        User body = User.create(NAME, EMAIL, GENDER, STATUS);
+    @BeforeMethod
+    private void createUser() throws IOException {
+        User body = User.create(null, NAME, EMAIL, GENDER, STATUS);
         Call<DataUsers> request = createNewUserFactory.createNewUser(TOKEN, body);
         Response<DataUsers> response = request.execute();
-        return response;
+        responseDataUser.set(response);
     }
 
-    private Response<DataUsers> deleteExistingUser(int id) throws IOException {
-        Call<DataUsers> request = deleteUserFactory.deleteUser(id, TOKEN);
+    @AfterMethod
+    private Response<DataUsers> deleteExistingUser() throws IOException {
+        Call<DataUsers> request = deleteUserFactory.deleteUser(responseDataUser.get().body().getData().getId(), TOKEN);
         Response<DataUsers> response = request.execute();
         return response;
     }

@@ -16,12 +16,12 @@ public abstract class DataUsers {
     public abstract Meta getMeta();
 
     @JsonProperty("data")
-    public abstract UserResponse getData();
+    public abstract User getData();
 
     @JsonCreator
     public static DataUsers create(
             @JsonProperty("meta") Meta meta,
-            @JsonProperty("data") UserResponse data
+            @JsonProperty("data") User data
     ) {
         return new AutoValue_DataUsers(meta, data);
     }
