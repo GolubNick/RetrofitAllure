@@ -13,6 +13,7 @@ import java.util.Properties;
 public class TestBase {
     protected Properties props;
     protected SoftAssertions softAssertions;
+    protected static final String TOKEN = "Bearer 34c12dd98998a249ad7ca9bed3439155ceae6f80c9777a3193175f7ef8fe1283";
 
 
     @BeforeMethod
@@ -20,9 +21,9 @@ public class TestBase {
         softAssertions = SoftAssertProvider.getSoftAssert();
     }
 
-    protected final RetrofitResourceFactory resourceFactory;
+    protected final RetrofitResourceFactory retrofitResourceFactory;
 
     public TestBase() {
-        resourceFactory = new RetrofitResourceFactory("https://gorest.co.in");
+        retrofitResourceFactory = new RetrofitResourceFactory("https://gorest.co.in");
     }
 }
