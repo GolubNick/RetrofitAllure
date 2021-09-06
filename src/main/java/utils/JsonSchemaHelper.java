@@ -1,35 +1,32 @@
 package utils;
 
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import retrofit2.Response;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Collectors;
 
 public final class JsonSchemaHelper {
 
-    public static boolean isMatchingSchema(String path, Response<?> response) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static void matchSchema(String path, Response<?> response) throws IOException {
+        String schema = Files.readString(Path.of("src/test/resources" + path));
+        Schema validator = SchemaLoader.load(new JSONObject(schema));
+        JSONObject json = new JSONObject(new GsonBuilder().create().toJson(response.body()));
         try {
-            InputStream inputStream = JsonSchemaHelper.class.getResourceAsStream(path);
-            JSONObject rawSchema;
-            if (inputStream != null) {
-                rawSchema = new JSONObject(new JSONTokener(inputStream));
-                Schema schema = SchemaLoader.load(rawSchema);
-                schema.validate(new JSONObject(gson.toJson(response.body())));
-                return true;
-            } else {
-                return false;
-            }
+            validator.validate(json);
         } catch (ValidationException e) {
-            System.out.println(e.getMessage());
-            return false;
+            throw new AssertionError(
+                    e.getMessage() +
+                    ":\n" +
+                    e.getCausingExceptions().stream().map(ValidationException::getMessage)
+                            .collect(Collectors.joining("\n")));
         }
     }
 }

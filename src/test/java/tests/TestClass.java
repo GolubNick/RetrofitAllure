@@ -11,11 +11,12 @@ import resources.GetUserDetails;
 import resources.UpdateUserDetails;
 import retrofit2.Call;
 import retrofit2.Response;
-import utils.JsonSchemaHelper;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.UUID;
+
+import static utils.JsonSchemaHelper.matchSchema;
 
 public class TestClass extends TestBase{
 
@@ -31,36 +32,6 @@ public class TestClass extends TestBase{
 
     private ThreadLocal<Response<DataUsers>> responseDataUser = new ThreadLocal<>();
 
-    @Test
-    public void getUserByCorrectId() throws IOException {
-        Call<DataUsers> request = getUserDetails.getUserById(responseDataUser.get().body().getData().getId());
-        Response<DataUsers> response = request.execute();
-        softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_OK);
-        softAssertions.assertThat(JsonSchemaHelper.isMatchingSchema("/json-schema/user.json", response)).isTrue();
-    }
-
-    @Test
-    public void createNewUser() throws IOException {
-        Response<DataUsers> responseData = responseDataUser.get();
-        softAssertions.assertThat(responseData.code()).isEqualTo(HttpURLConnection.HTTP_CREATED);
-        softAssertions.assertThat(JsonSchemaHelper.isMatchingSchema("/json-schema/user.json", responseData)).isTrue();
-    }
-
-    @Test
-    public void updateUser() throws IOException {
-        User body = User.create(null, NAME, EMAIL, GENDER, STATUS);
-        Call<DataUsers> request = updateUserFactory.updateUser(responseDataUser.get().body().getData().getId(), TOKEN, body);
-        Response<DataUsers> response = request.execute();
-        softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_OK);
-        softAssertions.assertThat(JsonSchemaHelper.isMatchingSchema("/json-schema/user.json", response)).isTrue();
-    }
-
-    @Test
-    public void deleteUser() throws IOException {
-        Response<DataUsers> response = deleteExistingUser();
-        softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    }
-
     @BeforeMethod
     private void createUser() throws IOException {
         User body = User.create(null, NAME, EMAIL, GENDER, STATUS);
@@ -72,7 +43,36 @@ public class TestClass extends TestBase{
     @AfterMethod
     private Response<DataUsers> deleteExistingUser() throws IOException {
         Call<DataUsers> request = deleteUserFactory.deleteUser(responseDataUser.get().body().getData().getId(), TOKEN);
+        return request.execute();
+    }
+
+    @Test
+    public void getUserByCorrectId() throws IOException {
+        Call<DataUsers> request = getUserDetails.getUserById(responseDataUser.get().body().getData().getId());
         Response<DataUsers> response = request.execute();
-        return response;
+        softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_OK);
+        matchSchema("/json-schema/user.json", response);
+    }
+
+    @Test
+    public void createNewUser() throws IOException {
+        Response<DataUsers> response = responseDataUser.get();
+        softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_CREATED);
+        matchSchema("/json-schema/user.json", response);
+    }
+
+    @Test
+    public void updateUser() throws IOException {
+        User body = User.create(null, NAME, EMAIL, GENDER, STATUS);
+        Call<DataUsers> request = updateUserFactory.updateUser(responseDataUser.get().body().getData().getId(), TOKEN, body);
+        Response<DataUsers> response = request.execute();
+        softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_OK);
+        matchSchema("/json-schema/user.json", response);
+    }
+
+    @Test
+    public void deleteUser() throws IOException {
+        Response<DataUsers> response = deleteExistingUser();
+        softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     }
 }
