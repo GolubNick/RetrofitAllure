@@ -41,14 +41,4 @@ public class Aspects {
             getLifecycle().stopStep(uuid);
         }
     }
-
-    @Around("execution(* retrofit2.Response.body1(..))")
-    public Object responseData(ProceedingJoinPoint joinPoint) throws Throwable {
-        try {
-            Logger logger = LoggerFactory.getLogger(Aspects.class);
-            logger.info(((Response) joinPoint.getTarget()).body().toString());
-        } catch (StackOverflowError t){}
-        return joinPoint.proceed();
-    }
-
 }
