@@ -1,0 +1,4 @@
+retrofitConfig:
+  baseUrl: https://gorest.co.in
+generalConfig:
+  token: Bearer 99fef7e1b327ee563fcfb8ba8082a729f937ee46f6c32bc61121373f35ac4799
