@@ -32,7 +32,7 @@ public class TestClass extends TestBase{
 
     private ThreadLocal<Response<DataUsers>> responseDataUser = new ThreadLocal<>();
 
-    @BeforeMethod
+    @BeforeMethod(onlyForGroups = "create")
     private void createUser() throws IOException {
         User body = User.create(null, NAME, EMAIL, GENDER, STATUS);
         Call<DataUsers> request = createNewUserFactory.createNewUser(TOKEN, body);
@@ -40,13 +40,13 @@ public class TestClass extends TestBase{
         responseDataUser.set(response);
     }
 
-    @AfterMethod
+    @AfterMethod(onlyForGroups = "delete")
     private Response<DataUsers> deleteExistingUser() throws IOException {
         Call<DataUsers> request = deleteUserFactory.deleteUser(responseDataUser.get().body().getData().getId(), TOKEN);
         return request.execute();
     }
 
-    @Test
+    @Test(groups = {"create", "delete"})
     public void getUserByCorrectId() throws IOException {
         Call<DataUsers> request = getUserDetails.getUserById(responseDataUser.get().body().getData().getId());
         Response<DataUsers> response = request.execute();
@@ -54,14 +54,15 @@ public class TestClass extends TestBase{
         matchSchema("/json-schema/user.json", response);
     }
 
-    @Test
+    @Test(groups = {"delete"})
     public void createNewUser() throws IOException {
+        createUser();
         Response<DataUsers> response = responseDataUser.get();
         softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_CREATED);
         matchSchema("/json-schema/user.json", response);
     }
 
-    @Test
+    @Test(groups = {"create", "delete"})
     public void updateUser() throws IOException {
         User body = User.create(null, NAME, EMAIL, GENDER, STATUS);
         Call<DataUsers> request = updateUserFactory.updateUser(responseDataUser.get().body().getData().getId(), TOKEN, body);
@@ -70,7 +71,7 @@ public class TestClass extends TestBase{
         matchSchema("/json-schema/user.json", response);
     }
 
-    @Test
+    @Test(groups = "create")
     public void deleteUser() throws IOException {
         Response<DataUsers> response = deleteExistingUser();
         softAssertions.assertThat(response.code()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
