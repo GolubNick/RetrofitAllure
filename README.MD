@@ -42,3 +42,8 @@ Logs in a console and Allure report are the same. This is achieved to use custom
 Also, a project uses AspectJ library. For this it is necessary to have a 'aop-ajc.xml' file which includes a path to a class with aspects.
 AspectJ allows to catch an execution of any java method and to add some logic before, after, or runtime execution. 
 Thus, we were able to wrap every HTTP request in a separate Allure step.
+
+### 5. Initializing of framework variables
+
+You can set framework properties either as environment variables or write in a config.yaml file which is in a framework's root directory.
+Before tests running environment variables join to variables from config.yaml file and after that set as framework properties.
