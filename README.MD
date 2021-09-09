@@ -1,5 +1,5 @@
 ### The API framework description
-###1. Retrofit
+### 1. Retrofit
 The API framework is based on Retrofit library. Retrofit is a REST Client. In Retrofit, you configure which converter is used for the data serialization.
 To work with Retrofit you basically need the following three classes:
 
@@ -30,15 +30,15 @@ With the help of the @Header("Authorization") annotation you tell Retrofit to ad
     @PUT("/public/v1/users/{id}")
     Call<DataUsers> updateUser(@Path("id") Integer id, @Header("Authorization") String token, @Body User body);
 
-###2. Allure report
+### 2. Allure report
 Allure has been chosen to report tests result. Allure report includes every HTTP action with attachments both request and response (body, status code, headers, etc.). 
 To generate Allure report you have to make 'mvn allure:serve' command. Also, you should have an allure.properties file in your project. 
 This file contains a directory path with test results.
 
-###3. Console logs
+### 3. Console logs
 Logs in a console and Allure report are the same. This is achieved to use custom interceptor class.
 
-###4. Java Aspects
+### 4. Java Aspects
 Also, a project uses AspectJ library. For this it is necessary to have a 'aop-ajc.xml' file which includes a path to a class with aspects.
 AspectJ allows to catch an execution of any java method and to add some logic before, after, or runtime execution. 
 Thus, we were able to wrap every HTTP request in a separate Allure step.
